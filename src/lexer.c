@@ -1,10 +1,10 @@
 /***************************************************************************
  * ANALISADOR LÉXICO DIDÁTICO — Implementação Completa em C
- * 
+ *
  * Arquivo: lexer.c
  * Descrição: Analisador léxico simples para um subconjunto de C
  * Objetivo: Material didático para disciplina de Compiladores
- * 
+ *
  * Características:
  * - Reconhece identificadores, números inteiros e reais, strings
  * - Palavras reservadas: if, else, while, int, float, return
@@ -12,14 +12,14 @@
  * - Delimitadores: ( ) { } ;
  * - Ignora espaços, tabs, quebras de linha
  * - Ignora comentários de linha (//) e bloco
- * 
+ *
  * Compilação:
  *   gcc -Wall -Wextra -std=c99 -o lexer lexer.c
- * 
+ *
  * Execução:
  *   ./lexer                    # usa código-fonte embutido
  *   ./lexer arquivo.c          # analisa arquivo externo
- * 
+ *
  ***************************************************************************/
 
 #include <stdio.h>
@@ -41,7 +41,7 @@ typedef enum {
     TOK_NUM_INT,    /* Número inteiro literal: 42, 0, 123 */
     TOK_NUM_FLOAT,  /* Número real literal: 3.14, 0.5, 2.0 */
     TOK_STRING,     /* String literal: "hello world" */
-    
+
     /* Palavras reservadas */
     TOK_IF,         /* if */
     TOK_ELSE,       /* else */
@@ -49,13 +49,13 @@ typedef enum {
     TOK_INT,        /* int (tipo de dado) */
     TOK_FLOAT,      /* float (tipo de dado) */
     TOK_RETURN,     /* return */
-    
+
     /* Operadores aritméticos */
     TOK_PLUS,       /* + */
     TOK_MINUS,      /* - */
     TOK_STAR,       /* * */
     TOK_SLASH,      /* / */
-    
+
     /* Operadores relacionais e lógicos */
     TOK_EQ,         /* == (igualdade) */
     TOK_ASSIGN,     /* = (atribuição) */
@@ -64,7 +64,7 @@ typedef enum {
     TOK_LE,         /* <= (menor ou igual) */
     TOK_GT,         /* > (maior que) */
     TOK_GE,         /* >= (maior ou igual) */
-    
+
     /* Delimitadores */
     TOK_SEMICOL,    /* ; */
     TOK_COMMA,      /* , */
@@ -72,7 +72,7 @@ typedef enum {
     TOK_RPAREN,     /* ) */
     TOK_LBRACE,     /* { */
     TOK_RBRACE,     /* } */
-    
+
     /* Especiais */
     TOK_EOF,        /* Fim de arquivo */
     TOK_ERROR       /* Token inválido / erro léxico */
@@ -81,7 +81,7 @@ typedef enum {
 /* ── Tamanho máximo do lexema ──────────────────────────────────────── */
 #define MAX_LEXEME 256
 
-/* ── Estrutura de um token ─────────────────────────────────────────── 
+/* ── Estrutura de um token ───────────────────────────────────────────
    Representa um token com seu tipo e o texto literal (lexema).
 */
 typedef struct {
@@ -184,9 +184,9 @@ static inline char espiar_proximo(void) {
 */
 static char avancar(void) {
     char c = *src;
-    
+
     if (c == '\0') return c;  /* não avança além do fim */
-    
+
     /* Atualiza contadores de posição */
     if (c == '\n') {
         linha_atual++;
@@ -194,7 +194,7 @@ static char avancar(void) {
     } else {
         coluna_atual++;
     }
-    
+
     src++;  /* avança o ponteiro */
     return c;
 }
@@ -203,7 +203,7 @@ static char avancar(void) {
    Operação de "pushback". Usado quando lemos um caractere a mais
    e precisamos devolvê-lo. Por exemplo, ao ler '=' seguido de 'x',
    devemos devolver o 'x' após reconhecer o token ASSIGN.
-   
+
    IMPORTANTE: Esta implementação simples só funciona para 1 caractere.
    Lexers reais usam um buffer circular que permite múltiplos pushbacks.
 */
@@ -222,20 +222,20 @@ static void retroceder(void) {
    - Espaços, tabs, quebras de linha
    - Comentários de linha: // até o fim da linha
    - Comentários de bloco: delimitados por barra-asterisco
-   
+
    Esta função é crucial para manter o lexer simples: as funções de
    reconhecimento de token não precisam se preocupar com whitespace.
 */
 static void pular_brancos(void) {
     while (true) {
         char c = espiar();
-        
+
         /* Espaços em branco */
         if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
             avancar();
             continue;
         }
-        
+
         /* Comentário de linha: // ... \n */
         if (c == '/' && espiar_proximo() == '/') {
             avancar();  /* consome / */
@@ -246,7 +246,7 @@ static void pular_brancos(void) {
             }
             continue;
         }
-        
+
         /* Comentário de bloco: delimitado por barra-asterisco */
         if (c == '/' && espiar_proximo() == '*') {
             avancar();  /* consome / */
@@ -267,7 +267,7 @@ static void pular_brancos(void) {
             }
             continue;
         }
-        
+
         /* Não é whitespace nem comentário: sair do loop */
         break;
     }
@@ -276,7 +276,7 @@ static void pular_brancos(void) {
 /* ── Verifica se um lexema é palavra reservada ───────────────────────
    Percorre a tabela 'reservadas[]' comparando strings.
    Retorna o tipo correspondente se encontrar, TOK_ID caso contrário.
-   
+
    OTIMIZAÇÃO: Em lexers reais, usa-se uma hash table para O(1).
    Aqui usamos busca linear O(n) para simplicidade didática.
 */
@@ -315,17 +315,17 @@ static Token token_erro(const char *mensagem) {
 
 /* ══════════════════════════════════════════════════════════════════════
    proximo_token()
-   
+
    Retorna o próximo token da entrada. Esta é a função pública do lexer,
    chamada repetidamente pelo parser até retornar TOK_EOF.
-   
+
    ALGORITMO:
    1. Ignora espaços e comentários
    2. Lê o primeiro caractere
    3. Baseado no caractere, decide qual estado do AFD entrar
    4. Consome caracteres adicionais conforme necessário
    5. Retorna o token reconhecido
-   
+
    IMPLEMENTAÇÃO DO AFD:
    O código abaixo é uma implementação direta do Autômato Finito
    Determinístico (AFD) apresentado nos slides. Cada ramificação
@@ -336,17 +336,17 @@ Token proximo_token(void) {
     char buf[MAX_LEXEME];
     int i = 0;
     char c;
-    
+
     /* Passo 1: Ignora whitespace e comentários */
     pular_brancos();
-    
+
     /* Salva posição para reportar erros */
     int linha_token = linha_atual;
     int coluna_token = coluna_atual;
-    
+
     /* Passo 2: Lê primeiro caractere */
     c = avancar();
-    
+
     /* ─────────────────────────────────────────────────────────────────
        CASO 1: FIM DE ARQUIVO
        Se o caractere é '\0', retornamos TOK_EOF.
@@ -354,30 +354,30 @@ Token proximo_token(void) {
     if (c == '\0') {
         return criar_token(TOK_EOF, "<EOF>");
     }
-    
+
     /* ─────────────────────────────────────────────────────────────────
        CASO 2: IDENTIFICADORES E PALAVRAS RESERVADAS
-       
+
        REGRA: [a-zA-Z_][a-zA-Z0-9_]*
-       
+
        AFD:
          q0 --[letra|_]--> q1 (aceitação)
          q1 --[letra|dígito|_]--> q1 (loop)
-       
+
        Ao encontrar letra ou '_', entramos no estado q1 e consumimos
        todos os caracteres alfanuméricos seguintes. Ao final, verificamos
        se o lexema é palavra reservada.
     */
     if (isalpha(c) || c == '_') {
         buf[i++] = c;  /* armazena primeiro caractere */
-        
+
         /* Loop de q1: consome enquanto for letra, dígito ou underscore */
         while ((isalnum(espiar()) || espiar() == '_') && i < MAX_LEXEME - 1) {
             buf[i++] = avancar();
         }
-        
+
         buf[i] = '\0';  /* termina a string */
-        
+
         /* Verifica se é palavra reservada */
         TokenType tipo = checar_reservada(buf);
         Token tok = criar_token(tipo, buf);
@@ -385,49 +385,49 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* ─────────────────────────────────────────────────────────────────
        CASO 3: NÚMEROS (INTEIROS E REAIS)
-       
+
        REGRAS:
        - Inteiro: [0-9]+
        - Real:    [0-9]+\.[0-9]+
-       
+
        AFD:
          q0 --[dígito]--> q2 (aceitação para inteiro)
          q2 --[dígito]--> q2 (loop)
          q2 --[.]--> q3
          q3 --[dígito]--> q4 (aceitação para real)
          q4 --[dígito]--> q4 (loop)
-       
+
        Primeiro consumimos dígitos. Se encontrarmos '.', continuamos
        consumindo dígitos e reconhecemos como FLOAT. Caso contrário,
        reconhecemos como INT.
     */
     if (isdigit(c)) {
         buf[i++] = c;
-        
+
         /* Consome parte inteira */
         while (isdigit(espiar()) && i < MAX_LEXEME - 1) {
             buf[i++] = avancar();
         }
-        
+
         /* Verifica se há parte fracionária */
         if (espiar() == '.' && isdigit(espiar_proximo())) {
             buf[i++] = avancar();  /* consome o '.' */
-            
+
             /* Consome parte fracionária */
             while (isdigit(espiar()) && i < MAX_LEXEME - 1) {
                 buf[i++] = avancar();
             }
-            
+
             buf[i] = '\0';
             Token tok = criar_token(TOK_NUM_FLOAT, buf);
             tok.linha = linha_token;
             tok.coluna = coluna_token;
             return tok;
         }
-        
+
         /* Apenas inteiro */
         buf[i] = '\0';
         Token tok = criar_token(TOK_NUM_INT, buf);
@@ -435,15 +435,15 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* ─────────────────────────────────────────────────────────────────
        CASO 4: STRINGS LITERAIS
-       
+
        REGRA: "[^"]*"
-       
+
        Consome todos os caracteres até encontrar '"' de fechamento.
        Não armazena as aspas no lexema (apenas o conteúdo).
-       
+
        SIMPLIFICAÇÃO: Não trata caracteres de escape (\n, \", etc.)
     */
     if (c == '"') {
@@ -451,11 +451,11 @@ Token proximo_token(void) {
         while (espiar() != '"' && !fim_de_arquivo() && i < MAX_LEXEME - 1) {
             buf[i++] = avancar();
         }
-        
+
         if (espiar() != '"') {
             return token_erro("string não fechada");
         }
-        
+
         avancar();  /* consome " de fechamento */
         buf[i] = '\0';
         Token tok = criar_token(TOK_STRING, buf);
@@ -463,24 +463,24 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* ─────────────────────────────────────────────────────────────────
        CASO 5: OPERADORES E DELIMITADORES
-       
+
        Aqui tratamos todos os símbolos de um ou dois caracteres.
        Para operadores de dois caracteres (==, !=, <=, >=), usamos
        LOOKAHEAD para decidir qual token reconhecer.
-       
+
        AFD (exemplo para '='):
          q0 --[=]--> qEQ (estado intermediário)
          qEQ --[=]--> qEQUAL (aceitação: ==)
          qEQ --[outros]--> qASSIGN (aceitação: =)
-       
+
        A implementação usa espiar() para o lookahead e retroceder()
        se necessário (embora neste caso, não retrocedemos pois cada
        branch do switch já consome corretamente).
     */
-    
+
     /* Operador '=' ou '==' */
     if (c == '=') {
         buf[0] = c;
@@ -498,7 +498,7 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* Operador '!' ou '!=' */
     if (c == '!') {
         buf[0] = c;
@@ -514,7 +514,7 @@ Token proximo_token(void) {
         buf[1] = '\0';
         return token_erro("caractere inesperado '!'");
     }
-    
+
     /* Operador '<' ou '<=' */
     if (c == '<') {
         buf[0] = c;
@@ -532,7 +532,7 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* Operador '>' ou '>=' */
     if (c == '>') {
         buf[0] = c;
@@ -550,7 +550,7 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* Operadores aritméticos simples (um caractere) */
     if (c == '+') {
         buf[0] = c; buf[1] = '\0';
@@ -580,7 +580,7 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* Delimitadores */
     if (c == ';') {
         buf[0] = c; buf[1] = '\0';
@@ -624,10 +624,10 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
-    
+
     /* ─────────────────────────────────────────────────────────────────
        CASO 6: CARACTERE INVÁLIDO
-       
+
        Se chegamos aqui, o caractere não pertence a nenhum padrão
        reconhecido. Geramos um token de erro.
     */
@@ -670,12 +670,12 @@ char* ler_arquivo(const char *nome_arquivo) {
         fprintf(stderr, "Erro ao abrir arquivo '%s'\n", nome_arquivo);
         return NULL;
     }
-    
+
     /* Descobre tamanho do arquivo */
     fseek(f, 0, SEEK_END);
     long tamanho = ftell(f);
     fseek(f, 0, SEEK_SET);
-    
+
     /* Aloca buffer */
     char *conteudo = malloc(tamanho + 1);
     if (!conteudo) {
@@ -683,12 +683,12 @@ char* ler_arquivo(const char *nome_arquivo) {
         fclose(f);
         return NULL;
     }
-    
+
     /* Lê arquivo */
     fread(conteudo, 1, tamanho, f);
     conteudo[tamanho] = '\0';
     fclose(f);
-    
+
     return conteudo;
 }
 
@@ -722,10 +722,10 @@ int main(int argc, char *argv[]) {
         "        return 0;\n"
         "    }\n"
         "}\n";
-    
+
     const char *codigo = codigo_exemplo;
     bool deve_liberar = false;
-    
+
     /* Se foi passado argumento, lê arquivo */
     if (argc > 1) {
         codigo = ler_arquivo(argv[1]);
@@ -745,16 +745,16 @@ int main(int argc, char *argv[]) {
         printf("%s", codigo);
         printf("───────────────────────────────────────────────────────────\n\n");
     }
-    
+
     /* Inicializa o lexer */
     inicializar_lexer(codigo);
-    
+
     /* Cabeçalho da tabela de tokens */
     printf("TOKENS RECONHECIDOS:\n");
     printf("───────────────────────────────────────────────────────────\n");
     printf("%-12s  %-20s  %s\n", "TIPO", "LEXEMA", "POSIÇÃO");
     printf("%-12s  %-20s  %s\n", "────────────", "────────────────────", "─────────────");
-    
+
     /* Loop principal: extrai tokens até EOF ou ERROR */
     Token tok;
     int contador = 0;
@@ -762,22 +762,22 @@ int main(int argc, char *argv[]) {
         tok = proximo_token();
         imprimir_token(tok);
         contador++;
-        
+
         /* Limite de segurança para evitar loop infinito em caso de bug */
         if (contador > 10000) {
             fprintf(stderr, "\nAVISO: Limite de 10000 tokens atingido. Abortando.\n");
             break;
         }
     } while (tok.tipo != TOK_EOF && tok.tipo != TOK_ERROR);
-    
+
     printf("───────────────────────────────────────────────────────────\n");
     printf("Total de tokens: %d\n", contador);
     printf("═══════════════════════════════════════════════════════════\n");
-    
+
     /* Libera memória se foi alocada */
     if (deve_liberar) {
         free((char*)codigo);
     }
-    
+
     return (tok.tipo == TOK_ERROR) ? 1 : 0;
 }
