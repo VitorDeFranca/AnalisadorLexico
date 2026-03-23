@@ -31,8 +31,11 @@ Este é um analisador léxico (lexer/scanner) completo e didático implementado 
 - **Linha:** `// comentário até o fim da linha`
 - **Bloco:** `/* comentário de múltiplas linhas */`
 
----
 
+### Alterações do aluno
+- A palavra reservada **for** foi incluída no reconhecimento do lexer e pode ser testada na execução do *teste_autoral_monteiro_franca.cs*!
+
+---
 ## Compilação
 
 ### Requisitos
@@ -185,6 +188,66 @@ Arquivo preparado para testar detecção de erros léxicos.
 
 Para testar um erro específico, edite o arquivo e descomente uma das linhas marcadas.
 
+### teste_autoral_monteiro_franca
+Arquivo preparado para personalização do trabalho. Código elaborado por Vitor Monteiro de França para testes
+
+```bash
+./lexer teste_autoral_monteiro_franca.c
+```
+Saída esperada:
+```bash
+═══════════════════════════════════════════════════════════
+ AUTOR: Vitor França
+ TURMA: Ciência da Computação
+ REPOSITÓRIO: AnalisadorLexico
+ ANÁLISE LÉXICA DO ARQUIVO: teste_autoral_monteiro_franca.c
+═══════════════════════════════════════════════════════════
+
+TOKENS RECONHECIDOS:
+───────────────────────────────────────────────────────────
+TIPO          LEXEMA                POSIÇÃO
+────────────  ────────────────────  ─────────────
+int           int                   [linha  1, col  1]
+ID            main                  [linha  1, col  5]
+LPAREN        (                     [linha  1, col  9]
+RPAREN        )                     [linha  1, col 10]
+LBRACE        {                     [linha  1, col 12]
+int           int                   [linha  3, col  5]
+ID            idade                 [linha  3, col  9]
+ASSIGN        =                     [linha  3, col 15]
+NUM_INT       25                    [linha  3, col 17]
+SEMICOL       ;                     [linha  3, col 19]
+if            if                    [linha  7, col  5]
+LPAREN        (                     [linha  7, col  8]
+ID            idade                 [linha  7, col  9]
+GE            >=                    [linha  7, col 15]
+NUM_INT       18                    [linha  7, col 18]
+RPAREN        )                     [linha  7, col 20]
+LBRACE        {                     [linha  7, col 22]
+ID            char                  [linha  8, col  9]
+STAR          *                     [linha  8, col 14]
+ID            mensagem              [linha  8, col 15]
+ASSIGN        =                     [linha  8, col 24]
+STRING        Você é maior de idade.  [linha  8, col 26]
+SEMICOL       ;                     [linha  8, col 52]
+ID            printf                [linha  9, col  9]
+LPAREN        (                     [linha  9, col 15]
+STRING        %s\n                  [linha  9, col 16]
+COMMA         ,                     [linha  9, col 22]
+ID            mensagem              [linha  9, col 24]
+RPAREN        )                     [linha  9, col 32]
+SEMICOL       ;                     [linha  9, col 33]
+RBRACE        }                     [linha 10, col  5]
+return        return                [linha 12, col  5]
+NUM_INT       0                     [linha 12, col 12]
+SEMICOL       ;                     [linha 12, col 13]
+RBRACE        }                     [linha 13, col  1]
+ERRO LÉXICO linha 13, coluna 3:
+ERROR                              [linha 13, col  3]
+───────────────────────────────────────────────────────────
+Total de tokens: 36
+═══════════════════════════════════════════════════════════
+```
 ---
 
 ## Criando Seus Próprios Testes
@@ -202,11 +265,11 @@ nano meu_teste.c
 int main() {
     int x = 42;
     float pi = 3.14;
-    
+
     if (x > 0) {
         return x + 1;
     }
-    
+
     return 0;
 }
 ```
@@ -319,12 +382,12 @@ O código em `proximo_token()` implementa o Autômato Finito Determinístico mos
 if (isalpha(c) || c == '_') {
     // Estado q0 → q1
     buf[i++] = c;
-    
+
     // Loop em q1
     while (isalnum(espiar()) || espiar() == '_') {
         buf[i++] = avancar();
     }
-    
+
     // q1 é estado de aceitação
     return criar_token(...);
 }
@@ -378,7 +441,7 @@ As funções auxiliares implementadas correspondem exatamente às descritas nos 
 1. **Números negativos:** O lexer reconhece `-` como operador separado
    - Entrada: `-5` → Tokens: `MINUS`, `NUM_INT(5)`
    - Isso é resolvido na fase sintática
-   
+
 2. **Escape sequences:** Strings não processam `\n`, `\"`, etc.
    - Isso seria adicionado em um lexer completo
 

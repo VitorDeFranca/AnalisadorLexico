@@ -49,6 +49,7 @@ typedef enum {
     TOK_INT,        /* int (tipo de dado) */
     TOK_FLOAT,      /* float (tipo de dado) */
     TOK_RETURN,     /* return */
+    TOK_FOR,        /* for */
 
     /* Operadores aritméticos */
     TOK_PLUS,       /* + */
@@ -135,6 +136,7 @@ static Reservada reservadas[] = {
     {"int",    TOK_INT   },
     {"float",  TOK_FLOAT },
     {"return", TOK_RETURN},
+    {"for",    TOK_FOR},
     {NULL,     TOK_ID    }  /* sentinela: fim da tabela */
 };
 
@@ -144,7 +146,7 @@ static Reservada reservadas[] = {
 */
 static const char *nomes_tokens[] = {
     "ID", "NUM_INT", "NUM_FLOAT", "STRING",
-    "if", "else", "while", "int", "float", "return",
+    "if", "else", "while", "int", "float", "return", "for",
     "PLUS", "MINUS", "STAR", "SLASH",
     "EQ", "ASSIGN", "NEQ", "LT", "LE", "GT", "GE",
     "SEMICOL", "COMMA", "LPAREN", "RPAREN", "LBRACE", "RBRACE",
@@ -725,6 +727,10 @@ int main(int argc, char *argv[]) {
 
     const char *codigo = codigo_exemplo;
     bool deve_liberar = false;
+    printf("═══════════════════════════════════════════════════════════\n");
+    printf(" AUTOR: Vitor França\n");
+    printf(" TURMA: Ciência da Computação\n");
+    printf(" REPOSITÓRIO: AnalisadorLexico\n");
 
     /* Se foi passado argumento, lê arquivo */
     if (argc > 1) {
@@ -733,11 +739,9 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         deve_liberar = true;
-        printf("═══════════════════════════════════════════════════════════\n");
         printf(" ANÁLISE LÉXICA DO ARQUIVO: %s\n", argv[1]);
         printf("═══════════════════════════════════════════════════════════\n\n");
     } else {
-        printf("═══════════════════════════════════════════════════════════\n");
         printf(" ANÁLISE LÉXICA — Código de Exemplo Embutido\n");
         printf("═══════════════════════════════════════════════════════════\n\n");
         printf("CÓDIGO-FONTE:\n");
